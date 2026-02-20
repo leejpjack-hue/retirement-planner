@@ -1,0 +1,304 @@
+import { useState } from 'react';
+import './App.css';
+import { cities, currentCities, retireCities } from './data/cities';
+import type { UserState, CalculationResult } from './types';
+import { lifestyleOptions } from './types';
+import { calculateRetirement, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
+
+// Progress Bar Component
+function ProgressBar({ step }: { step: number }) {
+  return (
+    <div className="progress">
+      <div className={`progress-step ${step >= 1 ? 'active' : ''}`}></div>
+      <div className={`progress-step ${step >= 2 ? 'active' : ''}`}></div>
+      <div className={`progress-step ${step >= 3 ? 'active' : ''}`}></div>
+    </div>
+  );
+}
+
+// City Option Component
+function CityOption({ 
+  city, 
+  selected, 
+  onClick,
+  showCost = false 
+}: { 
+  city: typeof cities[0]; 
+  selected: boolean; 
+  onClick: () => void;
+  showCost?: boolean;
+}) {
+  return (
+    <div 
+      className={`option ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      <span className="option-flag">{city.flag}</span>
+      <div className="option-name">{city.name}</div>
+      {showCost && (
+        <div className="option-cost">${city.monthlyUSD}/月</div>
+      )}
+    </div>
+  );
+}
+
+// Lifestyle Option Component
+function LifestyleOption({ 
+  option, 
+  selected, 
+  onClick 
+}: { 
+  option: typeof lifestyleOptions.food[0]; 
+  selected: boolean; 
+  onClick: () => void;
+}) {
+  return (
+    <div 
+      className={`option ${selected ? 'selected' : ''}`}
+      onClick={onClick}
+    >
+      <span className="option-flag">{option.icon}</span>
+      <div className="option-name">{option.label}</div>
+    </div>
+  );
+}
+
+// Age Slider Component
+function AgeSlider({ 
+  value, 
+  onChange 
+}: { 
+  value: number; 
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="slider-wrap">
+      <div className="slider-value">{value}</div>
+      <input 
+        type="range" 
+        className="slider"
+        min="20" 
+        max="60" 
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+      <div className="slider-labels">
+        <span>20</span>
+        <span>60</span>
+      </div>
+    </div>
+  );
+}
+
+// Result Component
+function Result({ result }: { result: CalculationResult }) {
+  const suggestion = getSuggestion(result.savingsNeed);
+  
+  return (
+    <div className="result-section">
+      <div className="result-box">
+        <div className="result-amount">{formatUSD(result.totalNeeded)}</div>
+        <div className="result-sub">退休需要 (USD)</div>
+        <div className="result-local">
+          約 {formatCurrency(result.localAmount, result.currency)}
+        </div>
+      </div>
+      
+      <div className="stats">
+        <div className="stat">
+          <div className="stat-val">{formatUSD(result.monthlyNeed)}</div>
+          <div className="stat-label">每月使費</div>
+        </div>
+        <div className="stat">
+          <div className="stat-val">{result.inflationRate}%</div>
+          <div className="stat-label">通脹率</div>
+        </div>
+        <div className="stat">
+          <div className="stat-val">{formatUSD(result.savingsNeed)}</div>
+          <div className="stat-label">每月要儲</div>
+        </div>
+        <div className="stat">
+          <div className="stat-val">{result.yearsToRetire}年</div>
+          <div className="stat-label">距離退休</div>
+        </div>
+      </div>
+      
+      <div className="tip">
+        <p>{suggestion}</p>
+      </div>
+    </div>
+  );
+}
+
+// Main App
+function App() {
+  const [step, setStep] = useState(1);
+  const [result, setResult] = useState<CalculationResult | null>(null);
+  
+  const [state, setState] = useState<UserState>({
+    currentCity: 'hong_kong',
+    retireCity: 'hong_kong',
+    age: 30,
+    food: 1.0,
+    travel: 1.0,
+    transport: 1.0,
+    hobbies: 1.0,
+  });
+
+  const handleNext = () => {
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      // Calculate result
+      const calcResult = calculateRetirement(state);
+      setResult(calcResult);
+      setStep(4);
+    }
+  };
+
+  const handleRestart = () => {
+    setStep(1);
+    setResult(null);
+    setState({
+      currentCity: 'hong_kong',
+      retireCity: 'hong_kong',
+      age: 30,
+      food: 1.0,
+      travel: 1.0,
+      transport: 1.0,
+      hobbies: 1.0,
+    });
+  };
+
+  return (
+    <div className="container">
+      <h1>退休規劃</h1>
+      <p className="subtitle">答啲問題，幫你計數 🧮</p>
+      
+      <ProgressBar step={step > 3 ? 3 : step} />
+      
+      {/* Step 1: Cities & Age */}
+      {step === 1 && (
+        <div className="step-content">
+          <div className="card">
+            <div className="card-label">🏠 你而家係邊？</div>
+            <div className="grid-3">
+              {currentCities.map((city) => (
+                <CityOption
+                  key={city.id}
+                  city={city}
+                  selected={state.currentCity === city.id}
+                  showCost
+                  onClick={() => setState({ ...state, currentCity: city.id })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-label">🌴 想去邊退休？</div>
+            <div className="grid-3">
+              {retireCities.map((city) => (
+                <CityOption
+                  key={city.id}
+                  city={city}
+                  selected={state.retireCity === city.id}
+                  onClick={() => setState({ ...state, retireCity: city.id })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-label">🎂 你幾多歲？</div>
+            <AgeSlider
+              value={state.age}
+              onChange={(age) => setState({ ...state, age })}
+            />
+          </div>
+          
+          <button className="btn" onClick={handleNext}>
+            下一步
+          </button>
+        </div>
+      )}
+      
+      {/* Step 2: Lifestyle */}
+      {step === 2 && (
+        <div className="step-content">
+          <div className="card">
+            <div className="card-label">🍽️ 通常點食？</div>
+            <div className="grid-4">
+              {lifestyleOptions.food.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.food === option.value}
+                  onClick={() => setState({ ...state, food: option.value })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-label">✈️ 幾耐旅行？</div>
+            <div className="grid-4">
+              {lifestyleOptions.travel.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.travel === option.value}
+                  onClick={() => setState({ ...state, travel: option.value })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-label">🚗 點返工？</div>
+            <div className="grid-4">
+              {lifestyleOptions.transport.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.transport === option.value}
+                  onClick={() => setState({ ...state, transport: option.value })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="card-label">🎭 退休想做乜？</div>
+            <div className="grid-4">
+              {lifestyleOptions.hobbies.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.hobbies === option.value}
+                  onClick={() => setState({ ...state, hobbies: option.value })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <button className="btn" onClick={handleNext}>
+            計數
+          </button>
+        </div>
+      )}
+      
+      {/* Step 3: Results */}
+      {step === 3 && result && (
+        <div className="step-content">
+          <Result result={result} />
+          <button className="btn" onClick={handleRestart}>
+            再整過
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
