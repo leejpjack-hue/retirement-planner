@@ -32,13 +32,15 @@ body {
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Container */
 .container {
   max-width: 500px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 32px 16px 60px 16px;
 }
 
 /* Header */
@@ -184,21 +186,25 @@ h1 {
 /* Button */
 .btn {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   background: var(--primary);
   color: white;
   border: none;
   border-radius: 12px;
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 16px;
+  margin-top: 20px;
   transition: background 0.2s ease;
+  position: sticky;
+  bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,184,148,0.3);
 }
 
 .btn:hover {
   background: var(--primary-dark);
+  transform: scale(1.02);
 }
 
 /* Result Section */
