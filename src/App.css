@@ -200,6 +200,7 @@ h1 {
   position: sticky;
   bottom: 20px;
   box-shadow: 0 4px 12px rgba(0,184,148,0.3);
+  z-index: 1000;
 }
 
 .btn:hover {
