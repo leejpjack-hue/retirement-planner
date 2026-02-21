@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import './App.css';
 import { cities, currentCities, retireCities, getCityById } from './data/cities';
-import type { UserState, CalculationResult } from './types';
+import type { UserState, CalculationResult, DetailedResult } from './types';
 import { lifestyleOptions } from './types';
-import { calculateRetirement, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
+import { calculateRetirement, calculateDetailed, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
 
 // Progress Bar Component
 function ProgressBar({ step }: { step: number }) {
@@ -31,25 +31,27 @@ function CityDetail({ cityId }: { cityId: string }) {
         <div className="detail-item">
           <span className="detail-icon">🏪</span>
           <span className="detail-label">超市買餸</span>
-          <span className="detail-value">${city.expenses.food}</span>
+          <span className="detail-value">${city.expenses.food.home}</span>
         </div>
         <div className="detail-item">
           <span className="detail-icon">🍜</span>
           <span className="detail-label">出街食飯</span>
-          <span className="detail-value">${city.expenses.dining}</span>
+          <span className="detail-value">${city.expenses.food.dining}</span>
         </div>
         <div className="detail-item">
           <span className="detail-icon">🚇</span>
           <span className="detail-label">交通費</span>
-          <span className="detail-value">${city.expenses.transport}</span>
+          <span className="detail-value">${city.expenses.transport.public}</span>
         </div>
         <div className="detail-item">
           <span className="detail-icon">🏠</span>
-          <span className="detail-label">住屋參考</span>
-          <span className="detail-value">${city.expenses.housing}</span>
+          <span className="detail-label">租金參考</span>
+          <span className="detail-value">${city.expenses.housing.rent}</span>
         </div>
       </div>
-      <div className="detail-source">數據來源: {city.source}</div>
+      <div className="detail-source">
+        數據來源: {city.source} | 稅率: {city.tax}%
+      </div>
     </div>
   );
 }
@@ -128,12 +130,13 @@ function AgeSlider({
   );
 }
 
-// Result Component
-function Result({ result }: { result: CalculationResult }) {
+// Result Component - Detailed Excel-like breakdown
+function Result({ result, detailed }: { result: CalculationResult; detailed: DetailedResult }) {
   const suggestion = getSuggestion(result.savingsNeed);
   
   return (
     <div className="result-section">
+      {/* Main Result */}
       <div className="result-box">
         <div className="result-amount">{formatUSD(result.totalNeeded)}</div>
         <div className="result-sub">退休需要 (USD)</div>
@@ -142,6 +145,7 @@ function Result({ result }: { result: CalculationResult }) {
         </div>
       </div>
       
+      {/* Quick Stats */}
       <div className="stats">
         <div className="stat">
           <div className="stat-val">{formatUSD(result.monthlyNeed)}</div>
@@ -161,6 +165,127 @@ function Result({ result }: { result: CalculationResult }) {
         </div>
       </div>
       
+      {/* Detailed Breakdown - Excel Style */}
+      <div className="detail-table">
+        <div className="detail-table-header">📊 詳細支出明細 (退休時)</div>
+        
+        <div className="detail-table-section">
+          <div className="detail-table-title">🏠 每月支出細項</div>
+          <table className="excel-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>現在 (每月)</th>
+                <th>{result.yearsToRetire}年後 (每月)</th>
+                <th>變化</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>🍚 飲食</td>
+                <td>${Math.round(detailed.monthlyFood)}</td>
+                <td>${Math.round(detailed.futureFood)}</td>
+                <td className="up">↑ {Math.round((detailed.futureFood / detailed.monthlyFood - 1) * 100)}%</td>
+              </tr>
+              <tr>
+                <td>🚇 交通費</td>
+                <td>${Math.round(detailed.monthlyTransport)}</td>
+                <td>${Math.round(detailed.futureTransport)}</td>
+                <td className="up">↑ {Math.round((detailed.futureTransport / detailed.monthlyTransport - 1) * 100)}%</td>
+              </tr>
+              <tr>
+                <td>🏠 租金</td>
+                <td>${Math.round(detailed.monthlyHousing)}</td>
+                <td>${Math.round(detailed.futureHousing)}</td>
+                <td className="up">↑ {Math.round((detailed.futureHousing / detailed.monthlyHousing - 1) * 100)}%</td>
+              </tr>
+              <tr>
+                <td>💡 水電煤</td>
+                <td>${Math.round(detailed.monthlyUtility)}</td>
+                <td>${Math.round(detailed.futureUtility)}</td>
+                <td className="up">↑ {Math.round((detailed.futureUtility / detailed.monthlyUtility - 1) * 100)}%</td>
+              </tr>
+              <tr>
+                <td>🎭 娛樂/興趣</td>
+                <td>${Math.round(detailed.monthlyLifestyle)}</td>
+                <td>${Math.round(detailed.futureLifestyle)}</td>
+                <td className="up">↑ {Math.round((detailed.futureLifestyle / detailed.monthlyLifestyle - 1) * 100)}%</td>
+              </tr>
+              <tr className="total-row">
+                <td><strong>總計</strong></td>
+                <td><strong>${Math.round(detailed.currentMonthly)}</strong></td>
+                <td><strong>${Math.round(detailed.futureMonthly)}</strong></td>
+                <td className="up"><strong>↑ {Math.round((detailed.futureMonthly / detailed.currentMonthly - 1) * 100)}%</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="detail-table-section">
+          <div className="detail-table-title">💰 退休規劃</div>
+          <table className="excel-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>退休後每年使費</td>
+                <td>${Math.round(detailed.futureMonthly * 12).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>按4%法則計算</td>
+                <td>${Math.round(detailed.totalNeeded).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>💵 稅項 impact ({Math.round(detailed.taxRate * 100)}%)</td>
+                <td>+${Math.round(detailed.totalWithTax - detailed.totalNeeded).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>連稅務總額</td>
+                <td>${Math.round(detailed.totalWithTax).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>📈 每月需要儲蓄</td>
+                <td>${Math.round(detailed.monthlySavings).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td>🏦 需要總額 (本地)</td>
+                <td>{detailed.currency} ${Math.round(detailed.totalWithTax * detailed.cityRate).toLocaleString()}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="detail-table-section">
+          <div className="detail-table-title">📈 通脹影響</div>
+          <table className="excel-table">
+            <thead>
+              <tr>
+                <th>項目</th>
+                <th>數值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>每年通脹率</td>
+                <td>{Math.round(detailed.inflationRate * 100 * 10) / 10}%</td>
+              </tr>
+              <tr>
+                <td>{result.yearsToRetire}年累積通脹</td>
+                <td>{Math.round((Math.pow(1 + detailed.inflationRate, result.yearsToRetire) - 1) * 100)}%</td>
+              </tr>
+              <tr>
+                <td>物價變化倍數</td>
+                <td>{Math.round(Math.pow(1 + detailed.inflationRate, result.yearsToRetire) * 100) / 100}x</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
       <div className="tip">
         <p>{suggestion}</p>
       </div>
@@ -172,6 +297,7 @@ function Result({ result }: { result: CalculationResult }) {
 function App() {
   const [step, setStep] = useState(1);
   const [result, setResult] = useState<CalculationResult | null>(null);
+  const [detailed, setDetailed] = useState<DetailedResult | null>(null);
   
   const [state, setState] = useState<UserState>({
     currentCity: 'hong_kong',
@@ -189,7 +315,9 @@ function App() {
     } else {
       // Calculate result
       const calcResult = calculateRetirement(state);
+      const detailedResult = calculateDetailed(state);
       setResult(calcResult);
+      setDetailed(detailedResult);
       setStep(4);
     }
   };
@@ -197,6 +325,7 @@ function App() {
   const handleRestart = () => {
     setStep(1);
     setResult(null);
+    setDetailed(null);
     setState({
       currentCity: 'hong_kong',
       retireCity: 'hong_kong',
@@ -331,7 +460,7 @@ function App() {
       {/* Step 3: Results */}
       {step === 3 && result && (
         <div className="step-content">
-          <Result result={result} />
+          {result && detailed && <Result result={result} detailed={detailed} />}
           <button className="btn" onClick={handleRestart}>
             再整過
           </button>

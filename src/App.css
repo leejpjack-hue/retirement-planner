@@ -378,3 +378,85 @@ h1 {
   padding-top: 10px;
   border-top: 1px dashed var(--border);
 }
+
+/* Detailed Table - Excel Style */
+.detail-table {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.detail-table-header {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--primary);
+}
+
+.detail-table-section {
+  margin-bottom: 20px;
+}
+
+.detail-table-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.excel-table th {
+  background: var(--primary);
+  color: white;
+  padding: 8px 6px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.excel-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.excel-table td:first-child {
+  text-align: left;
+}
+
+.excel-table tr:nth-child(even) {
+  background: rgba(0,184,148,0.05);
+}
+
+.excel-table .total-row {
+  background: rgba(0,184,148,0.1);
+  font-weight: 700;
+}
+
+.excel-table .up {
+  color: #e74c3c;
+}
+
+.excel-table .down {
+  color: #27ae60;
+}
+
+@media (max-width: 400px) {
+  .excel-table {
+    font-size: 0.65rem;
+  }
+  .excel-table th, .excel-table td {
+    padding: 6px 4px;
+  }
+}

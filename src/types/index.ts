@@ -20,6 +20,37 @@ export interface CalculationResult {
   currency: string;
 }
 
+export interface DetailedResult {
+  // Current expenses
+  currentMonthly: number;
+  monthlyFood: number;
+  monthlyTransport: number;
+  monthlyHousing: number;
+  monthlyUtility: number;
+  monthlyLifestyle: number;
+  
+  // Future expenses (at retirement)
+  futureMonthly: number;
+  futureFood: number;
+  futureTransport: number;
+  futureHousing: number;
+  futureUtility: number;
+  futureLifestyle: number;
+  
+  // Summary
+  totalNeeded: number;
+  totalWithTax: number;
+  monthlySavings: number;
+  yearsToRetire: number;
+  inflationRate: number;
+  taxRate: number;
+  
+  // City info
+  cityName: string;
+  currency: string;
+  cityRate: number;
+}
+
 export interface LifestyleOption {
   value: number;
   icon: string;
