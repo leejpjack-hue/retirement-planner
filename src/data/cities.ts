@@ -2,27 +2,34 @@
 
 export interface CityExpense {
   food: {
-    home: number;     // 屋企煮
-    delivery: number; // 外賣
-    dining: number;  // 出街食
-    fine: number;    // 周圍食/fine dining
+    home: number;       // 屋企煮
+    delivery: number;   // 外賣
+    dining: number;     // 出街食
+    fine: number;       // 周圍食/fine dining
+  };
+  cuisine: {
+    chinese: number;    // 中菜
+    japanese: number;   // 日本嘢
+    western: number;    // 西餐
+    international: number; // 各國菜
   };
   transport: {
-    public: number;   // 公共交通
-    walk: number;    // 行路
-    car: number;     // 揸車
-    taxi: number;    // 的士
+    public: number;     // 公共交通
+    walk: number;       // 行路
+    car: number;        // 揸車
+    taxi: number;       // 的士
   };
   housing: {
-    rent: number;     // 租金
-    utility: number; // 水電煤
-    maintenance: number; // 維修
+    rent: number;       // 租金
+    mortgage: number;   // 按揭
+    utility: number;    // 水電煤
+    maintenance: number;// 維修
   };
-  lifestyle: {
-    tv: number;       // 睇電視/上網
-    learn: number;    // 學嘢/興趣班
-    sports: number;  // 運動
-    travel: number;  // 旅行
+  medical: {
+    basic: number;      // 基本體檢/藥物
+    regular: number;    // 普通門診
+    private: number;    // 私家醫院
+    premium: number;    // 全面保障
   };
 }
 
@@ -36,7 +43,7 @@ export interface City {
   currency: string;
   rate: number;
   expenses: CityExpense;
-  tax: number;       // 個人所得稅 %
+  tax: number;
   source: string;
 }
 
@@ -50,14 +57,20 @@ export const cities: City[] = [
     inflation: 2.4,
     currency: 'HKD',
     rate: 7.82,
-    tax: 15,  // 薪俸稅最高15%
-    source: 'Numbeo 2024 / Gov Census',
+    tax: 15,
+    source: 'Numbeo 2024',
     expenses: {
       food: {
         home: 500,
         delivery: 650,
         dining: 800,
         fine: 1000,
+      },
+      cuisine: {
+        chinese: 600,
+        japanese: 800,
+        western: 900,
+        international: 1000,
       },
       transport: {
         public: 80,
@@ -67,14 +80,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 15000,
+        mortgage: 18000,
         utility: 1500,
         maintenance: 500,
       },
-      lifestyle: {
-        tv: 500,
-        learn: 800,
-        sports: 1500,
-        travel: 10000,
+      medical: {
+        basic: 300,
+        regular: 800,
+        private: 2000,
+        premium: 4000,
       },
     },
   },
@@ -87,7 +101,7 @@ export const cities: City[] = [
     inflation: 2.0,
     currency: 'TWD',
     rate: 31.5,
-    tax: 20,  // 綜合所得稅最高20%
+    tax: 20,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -95,6 +109,12 @@ export const cities: City[] = [
         delivery: 450,
         dining: 600,
         fine: 900,
+      },
+      cuisine: {
+        chinese: 500,
+        japanese: 700,
+        western: 800,
+        international: 900,
       },
       transport: {
         public: 40,
@@ -104,14 +124,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 15000,
+        mortgage: 18000,
         utility: 2000,
         maintenance: 500,
       },
-      lifestyle: {
-        tv: 400,
-        learn: 600,
-        sports: 1000,
-        travel: 8000,
+      medical: {
+        basic: 200,
+        regular: 500,
+        private: 1500,
+        premium: 3000,
       },
     },
   },
@@ -124,7 +145,7 @@ export const cities: City[] = [
     inflation: 2.5,
     currency: 'CNY',
     rate: 7.24,
-    tax: 35,  // 個人所得稅最高35%
+    tax: 35,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -132,6 +153,12 @@ export const cities: City[] = [
         delivery: 500,
         dining: 700,
         fine: 1000,
+      },
+      cuisine: {
+        chinese: 500,
+        japanese: 800,
+        western: 900,
+        international: 1000,
       },
       transport: {
         public: 50,
@@ -141,14 +168,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 5000,
+        mortgage: 6000,
         utility: 500,
         maintenance: 300,
       },
-      lifestyle: {
-        tv: 300,
-        learn: 500,
-        sports: 800,
-        travel: 10000,
+      medical: {
+        basic: 200,
+        regular: 500,
+        private: 1500,
+        premium: 3000,
       },
     },
   },
@@ -161,7 +189,7 @@ export const cities: City[] = [
     inflation: 3.0,
     currency: 'SGD',
     rate: 1.34,
-    tax: 22,  // 最高22%
+    tax: 22,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -169,6 +197,12 @@ export const cities: City[] = [
         delivery: 500,
         dining: 600,
         fine: 900,
+      },
+      cuisine: {
+        chinese: 500,
+        japanese: 700,
+        western: 800,
+        international: 900,
       },
       transport: {
         public: 100,
@@ -178,14 +212,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 2200,
+        mortgage: 2500,
         utility: 200,
         maintenance: 150,
       },
-      lifestyle: {
-        tv: 400,
-        learn: 600,
-        sports: 800,
-        travel: 8000,
+      medical: {
+        basic: 150,
+        regular: 400,
+        private: 1200,
+        premium: 2500,
       },
     },
   },
@@ -198,7 +233,7 @@ export const cities: City[] = [
     inflation: 2.8,
     currency: 'JPY',
     rate: 149.5,
-    tax: 45,  // 最高45%
+    tax: 45,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -206,6 +241,12 @@ export const cities: City[] = [
         delivery: 600,
         dining: 800,
         fine: 1200,
+      },
+      cuisine: {
+        chinese: 600,
+        japanese: 700,
+        western: 900,
+        international: 1000,
       },
       transport: {
         public: 100,
@@ -215,14 +256,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 80000,
+        mortgage: 90000,
         utility: 15000,
         maintenance: 5000,
       },
-      lifestyle: {
-        tv: 5000,
-        learn: 8000,
-        sports: 10000,
-        travel: 150000,
+      medical: {
+        basic: 5000,
+        regular: 10000,
+        private: 25000,
+        premium: 50000,
       },
     },
   },
@@ -235,7 +277,7 @@ export const cities: City[] = [
     inflation: 3.2,
     currency: 'USD',
     rate: 1,
-    tax: 37,  // 聯邦稅最高37%
+    tax: 37,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -243,6 +285,12 @@ export const cities: City[] = [
         delivery: 800,
         dining: 1000,
         fine: 1500,
+      },
+      cuisine: {
+        chinese: 800,
+        japanese: 1000,
+        western: 1200,
+        international: 1500,
       },
       transport: {
         public: 130,
@@ -252,14 +300,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 3000,
+        mortgage: 3500,
         utility: 200,
         maintenance: 100,
       },
-      lifestyle: {
-        tv: 100,
-        learn: 200,
-        sports: 200,
-        travel: 3000,
+      medical: {
+        basic: 100,
+        regular: 300,
+        private: 800,
+        premium: 1500,
       },
     },
   },
@@ -281,6 +330,12 @@ export const cities: City[] = [
         dining: 400,
         fine: 600,
       },
+      cuisine: {
+        chinese: 350,
+        japanese: 500,
+        western: 600,
+        international: 700,
+      },
       transport: {
         public: 50,
         walk: 10,
@@ -289,14 +344,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 12000,
+        mortgage: 14000,
         utility: 3000,
         maintenance: 500,
       },
-      lifestyle: {
-        tv: 400,
-        learn: 500,
-        sports: 800,
-        travel: 8000,
+      medical: {
+        basic: 500,
+        regular: 1000,
+        private: 3000,
+        premium: 5000,
       },
     },
   },
@@ -318,6 +374,12 @@ export const cities: City[] = [
         dining: 350,
         fine: 500,
       },
+      cuisine: {
+        chinese: 300,
+        japanese: 400,
+        western: 500,
+        international: 600,
+      },
       transport: {
         public: 50,
         walk: 10,
@@ -326,14 +388,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 1500,
+        mortgage: 1800,
         utility: 300,
         maintenance: 100,
       },
-      lifestyle: {
-        tv: 150,
-        learn: 300,
-        sports: 500,
-        travel: 5000,
+      medical: {
+        basic: 100,
+        regular: 300,
+        private: 800,
+        premium: 1500,
       },
     },
   },
@@ -346,7 +409,7 @@ export const cities: City[] = [
     inflation: 2.5,
     currency: 'EUR',
     rate: 0.92,
-    tax: 48,  // 最高48%
+    tax: 48,
     source: 'Numbeo 2024',
     expenses: {
       food: {
@@ -354,6 +417,12 @@ export const cities: City[] = [
         delivery: 400,
         dining: 500,
         fine: 800,
+      },
+      cuisine: {
+        chinese: 500,
+        japanese: 700,
+        western: 600,
+        international: 800,
       },
       transport: {
         public: 50,
@@ -363,14 +432,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 900,
+        mortgage: 1000,
         utility: 150,
         maintenance: 50,
       },
-      lifestyle: {
-        tv: 40,
-        learn: 60,
-        sports: 50,
-        travel: 1000,
+      medical: {
+        basic: 40,
+        regular: 80,
+        private: 200,
+        premium: 400,
       },
     },
   },
@@ -392,6 +462,12 @@ export const cities: City[] = [
         dining: 350,
         fine: 500,
       },
+      cuisine: {
+        chinese: 300,
+        japanese: 450,
+        western: 500,
+        international: 600,
+      },
       transport: {
         public: 40,
         walk: 10,
@@ -400,14 +476,15 @@ export const cities: City[] = [
       },
       housing: {
         rent: 800,
+        mortgage: 900,
         utility: 80,
         maintenance: 50,
       },
-      lifestyle: {
-        tv: 50,
-        learn: 80,
-        sports: 80,
-        travel: 1500,
+      medical: {
+        basic: 50,
+        regular: 100,
+        private: 300,
+        premium: 600,
       },
     },
   },

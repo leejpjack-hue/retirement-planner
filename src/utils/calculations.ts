@@ -20,9 +20,14 @@ const calculateWithCity = (state: UserState, city: ReturnType<typeof getCityById
     throw new Error('City not found');
   }
   
-  const lifestyleMultiplier = state.food * state.travel * state.transport * state.hobbies;
+  // Comprehensive lifestyle multiplier
+  const lifestyleMultiplier = state.food * state.cuisineType * state.travel * state.transport * state.hobbies * state.medical;
+  
+  // Housing multiplier
+  const housingMultiplier = state.housing === 'own' ? 0.3 : state.housing === 'rent' ? 1.0 : 0.5;
+  
   const baseMonthly = city.monthlyUSD;
-  const adjustedMonthly = baseMonthly * lifestyleMultiplier;
+  const adjustedMonthly = baseMonthly * lifestyleMultiplier * housingMultiplier;
   
   const yearsToRetire = DEFAULT_RETIREMENT_AGE - state.age;
   const inflationRate = city.inflation / 100;
@@ -48,7 +53,7 @@ const calculateWithCity = (state: UserState, city: ReturnType<typeof getCityById
   };
 };
 
-// Detailed calculation with breakdown
+// Detailed calculation with full breakdown
 export const calculateDetailed = (state: UserState): DetailedResult => {
   const city = getCityById(state.retireCity);
   if (!city) {
@@ -56,21 +61,37 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   }
   
   // Get expense values based on choices
-  const foodValues = [city.expenses.food.home, city.expenses.food.delivery, city.expenses.food.dining, city.expenses.food.fine];
-  const transportValues = [city.expenses.transport.public, city.expenses.transport.walk, city.expenses.transport.car, city.expenses.transport.taxi];
-  const lifestyleValues = [city.expenses.lifestyle.tv, city.expenses.lifestyle.learn, city.expenses.lifestyle.sports, city.expenses.lifestyle.travel];
-  
   const foodIndex = [1.0, 1.3, 1.6, 2.0].indexOf(state.food);
+  const cuisineIndex = [1.0, 1.2, 1.4, 1.5, 1.6].indexOf(state.cuisineType);
   const transportIndex = [0.8, 1.0, 1.5, 2.0].indexOf(state.transport);
   const lifestyleIndex = [0.8, 1.0, 1.3, 1.6].indexOf(state.hobbies);
+  const medicalIndex = [0.8, 1.0, 1.3, 1.6].indexOf(state.medical);
+  
+  const foodValues = [city.expenses.food.home, city.expenses.food.delivery, city.expenses.food.dining, city.expenses.food.fine];
+  const cuisineValues = [city.expenses.cuisine.chinese, city.expenses.cuisine.japanese, city.expenses.cuisine.western, city.expenses.cuisine.international];
+  const transportValues = [city.expenses.transport.public, city.expenses.transport.walk, city.expenses.transport.car, city.expenses.transport.taxi];
+  const lifestyleValues = [500, 800, 1500, 3000]; // TV, Learn, Sports, Travel
+  const medicalValues = [city.expenses.medical.basic, city.expenses.medical.regular, city.expenses.medical.private, city.expenses.medical.premium];
   
   const monthlyFood = foodValues[foodIndex >= 0 ? foodIndex : 0];
+  const monthlyCuisine = cuisineValues[cuisineIndex >= 0 ? cuisineIndex : 0];
   const monthlyTransport = transportValues[transportIndex >= 0 ? transportIndex : 0];
-  const monthlyHousing = city.expenses.housing.rent;
-  const monthlyUtility = city.expenses.housing.utility;
   const monthlyLifestyle = lifestyleValues[lifestyleIndex >= 0 ? lifestyleIndex : 0];
+  const monthlyMedical = medicalValues[medicalIndex >= 0 ? medicalIndex : 0];
   
-  const currentMonthly = monthlyFood + monthlyTransport + monthlyHousing + monthlyUtility + monthlyLifestyle;
+  // Housing based on type
+  let monthlyHousing = 0;
+  if (state.housing === 'rent') {
+    monthlyHousing = city.expenses.housing.rent;
+  } else if (state.housing === 'own') {
+    monthlyHousing = city.expenses.housing.mortgage * 0.3;
+  } else {
+    monthlyHousing = city.expenses.housing.utility;
+  }
+  
+  const monthlyUtility = city.expenses.housing.utility;
+  
+  const currentMonthly = monthlyFood + monthlyCuisine + monthlyTransport + monthlyHousing + monthlyUtility + monthlyLifestyle + monthlyMedical;
   
   // Future calculation with inflation
   const yearsToRetire = DEFAULT_RETIREMENT_AGE - state.age;
@@ -81,8 +102,10 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const futureHousing = monthlyHousing * Math.pow(1 + inflationRate, yearsToRetire);
   const futureUtility = monthlyUtility * Math.pow(1 + inflationRate, yearsToRetire);
   const futureLifestyle = monthlyLifestyle * Math.pow(1 + inflationRate, yearsToRetire);
+  const futureMedical = monthlyMedical * Math.pow(1 + inflationRate * 1.5, yearsToRetire);
   
-  const futureMonthly = futureFood + futureTransport + futureHousing + futureUtility + futureLifestyle;
+  const futureCuisine = monthlyCuisine * Math.pow(1 + inflationRate, yearsToRetire);
+  const futureMonthly = futureFood + futureCuisine + futureTransport + futureHousing + futureUtility + futureLifestyle + futureMedical;
   const futureYearly = futureMonthly * 12;
   
   // Investment calculation
@@ -91,26 +114,34 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const months = yearsToRetire * 12;
   const monthlySavings = totalNeeded * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
   
-  // Tax impact (if withdrawing from retirement fund)
+  // Tax impact
   const taxRate = city.tax / 100;
   const totalWithTax = totalNeeded * (1 + taxRate);
+  
+  // Property asset value
+  const propertyAsset = state.hasProperty ? state.propertyValue : 0;
+  
+  // Housing type label
+  const housingLabels = { own: '自置物业', rent: '租楼', family: '与家人同住' };
   
   return {
     // Current expenses
     currentMonthly,
-    monthlyFood,
+    monthlyFood: monthlyFood + monthlyCuisine,
     monthlyTransport,
     monthlyHousing,
     monthlyUtility,
     monthlyLifestyle,
+    monthlyMedical,
     
-    // Future expenses (at retirement)
+    // Future expenses
     futureMonthly,
     futureFood,
     futureTransport,
     futureHousing,
     futureUtility,
     futureLifestyle,
+    futureMedical,
     
     // Summary
     totalNeeded,
@@ -124,6 +155,10 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
     cityName: city.name,
     currency: city.currency,
     cityRate: city.rate,
+    
+    // Housing
+    housingType: housingLabels[state.housing],
+    propertyAsset,
   };
 };
 
