@@ -310,7 +310,7 @@ function App() {
   });
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 2) {
       setStep(step + 1);
     } else {
       // Calculate result
@@ -318,7 +318,7 @@ function App() {
       const detailedResult = calculateDetailed(state);
       setResult(calcResult);
       setDetailed(detailedResult);
-      setStep(4);
+      setStep(3);
     }
   };
 
