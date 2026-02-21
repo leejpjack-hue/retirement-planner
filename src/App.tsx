@@ -458,7 +458,7 @@ function App() {
       )}
       
       {/* Step 3: Results */}
-      {step === 3 && result && (
+      {(step === 3 || step === 4) && result && (
         <div className="step-content">
           {result && detailed && <Result result={result} detailed={detailed} />}
           <button className="btn" onClick={handleRestart}>
