@@ -1,4 +1,11 @@
-// City Data for Retirement Planner
+// City Data for Retirement Planner - with detailed expenses
+
+export interface CityExpense {
+  food: number;      // Monthly food expense
+  transport: number;  // Monthly transport
+  housing: number;    // Monthly housing (for reference)
+  dining: number;    // Monthly dining out
+}
 
 export interface City {
   id: string;
@@ -9,6 +16,8 @@ export interface City {
   inflation: number;
   currency: string;
   rate: number;
+  expenses: CityExpense;
+  source: string;
 }
 
 export const cities: City[] = [
@@ -21,6 +30,13 @@ export const cities: City[] = [
     inflation: 2.4,
     currency: 'HKD',
     rate: 7.82,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 500,       //超市買餸
+      transport: 80,    //港鐵月票
+      housing: 1500,   //市區唐樓
+      dining: 800,     //出街食
+    },
   },
   {
     id: 'taipei',
@@ -31,6 +47,13 @@ export const cities: City[] = [
     inflation: 2.0,
     currency: 'TWD',
     rate: 31.5,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 350,
+      transport: 40,
+      housing: 500,
+      dining: 450,
+    },
   },
   {
     id: 'shanghai',
@@ -41,6 +64,13 @@ export const cities: City[] = [
     inflation: 2.5,
     currency: 'CNY',
     rate: 7.24,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 400,
+      transport: 50,
+      housing: 800,
+      dining: 500,
+    },
   },
   {
     id: 'singapore',
@@ -51,6 +81,13 @@ export const cities: City[] = [
     inflation: 3.0,
     currency: 'SGD',
     rate: 1.34,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 400,
+      transport: 100,
+      housing: 1200,
+      dining: 600,
+    },
   },
   {
     id: 'tokyo',
@@ -61,6 +98,13 @@ export const cities: City[] = [
     inflation: 2.8,
     currency: 'JPY',
     rate: 149.5,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 450,
+      transport: 100,
+      housing: 900,
+      dining: 600,
+    },
   },
   {
     id: 'new_york',
@@ -71,6 +115,13 @@ export const cities: City[] = [
     inflation: 3.2,
     currency: 'USD',
     rate: 1,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 600,
+      transport: 130,
+      housing: 2200,
+      dining: 800,
+    },
   },
   {
     id: 'bangkok',
@@ -81,6 +132,13 @@ export const cities: City[] = [
     inflation: 2.2,
     currency: 'THB',
     rate: 35.2,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 250,
+      transport: 50,
+      housing: 400,
+      dining: 300,
+    },
   },
   {
     id: 'kuala_lumpur',
@@ -91,6 +149,13 @@ export const cities: City[] = [
     inflation: 2.0,
     currency: 'MYR',
     rate: 4.72,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 200,
+      transport: 50,
+      housing: 350,
+      dining: 250,
+    },
   },
   {
     id: 'lisbon',
@@ -101,6 +166,13 @@ export const cities: City[] = [
     inflation: 2.5,
     currency: 'EUR',
     rate: 0.92,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 300,
+      transport: 50,
+      housing: 700,
+      dining: 400,
+    },
   },
   {
     id: 'mexico_city',
@@ -111,6 +183,13 @@ export const cities: City[] = [
     inflation: 4.0,
     currency: 'USD',
     rate: 1,
+    source: 'Numbeo 2024',
+    expenses: {
+      food: 200,
+      transport: 40,
+      housing: 500,
+      dining: 250,
+    },
   },
 ];
 

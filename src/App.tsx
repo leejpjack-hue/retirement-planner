@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './App.css';
-import { cities, currentCities, retireCities } from './data/cities';
+import { cities, currentCities, retireCities, getCityById } from './data/cities';
 import type { UserState, CalculationResult } from './types';
 import { lifestyleOptions } from './types';
 import { calculateRetirement, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
@@ -12,6 +12,44 @@ function ProgressBar({ step }: { step: number }) {
       <div className={`progress-step ${step >= 1 ? 'active' : ''}`}></div>
       <div className={`progress-step ${step >= 2 ? 'active' : ''}`}></div>
       <div className={`progress-step ${step >= 3 ? 'active' : ''}`}></div>
+    </div>
+  );
+}
+
+// City Detail Component - Show expense breakdown
+function CityDetail({ cityId }: { cityId: string }) {
+  const city = getCityById(cityId);
+  if (!city) return null;
+  
+  return (
+    <div className="city-detail">
+      <div className="detail-header">
+        <span className="detail-flag">{city.flag}</span>
+        <span className="detail-title">{city.name} 每月開支</span>
+      </div>
+      <div className="detail-grid">
+        <div className="detail-item">
+          <span className="detail-icon">🏪</span>
+          <span className="detail-label">超市買餸</span>
+          <span className="detail-value">${city.expenses.food}</span>
+        </div>
+        <div className="detail-item">
+          <span className="detail-icon">🍜</span>
+          <span className="detail-label">出街食飯</span>
+          <span className="detail-value">${city.expenses.dining}</span>
+        </div>
+        <div className="detail-item">
+          <span className="detail-icon">🚇</span>
+          <span className="detail-label">交通費</span>
+          <span className="detail-value">${city.expenses.transport}</span>
+        </div>
+        <div className="detail-item">
+          <span className="detail-icon">🏠</span>
+          <span className="detail-label">住屋參考</span>
+          <span className="detail-value">${city.expenses.housing}</span>
+        </div>
+      </div>
+      <div className="detail-source">數據來源: {city.source}</div>
     </div>
   );
 }
@@ -208,6 +246,8 @@ function App() {
               ))}
             </div>
           </div>
+          
+          <CityDetail cityId={state.retireCity} />
           
           <div className="card">
             <div className="card-label">🎂 你幾多歲？</div>

@@ -308,3 +308,73 @@ h1 {
     font-size: 1.6rem;
   }
 }
+
+/* City Detail */
+.city-detail {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-flag {
+  font-size: 1.5rem;
+}
+
+.detail-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.detail-item {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.detail-icon {
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.detail-label {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  display: block;
+}
+
+.detail-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--primary);
+  display: block;
+  margin-top: 4px;
+}
+
+.detail-source {
+  font-size: 0.65rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
