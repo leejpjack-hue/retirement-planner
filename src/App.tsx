@@ -304,9 +304,14 @@ function App() {
     retireCity: 'hong_kong',
     age: 30,
     food: 1.0,
+    cuisineType: 1.0,
     travel: 1.0,
     transport: 1.0,
     hobbies: 1.0,
+    housing: 'rent',
+    hasProperty: false,
+    propertyValue: 0,
+    medical: 1.0,
   });
 
   const handleNext = () => {
@@ -331,9 +336,14 @@ function App() {
       retireCity: 'hong_kong',
       age: 30,
       food: 1.0,
+      cuisineType: 1.0,
       travel: 1.0,
       transport: 1.0,
       hobbies: 1.0,
+      housing: 'rent',
+      hasProperty: false,
+      propertyValue: 0,
+      medical: 1.0,
     });
   };
 

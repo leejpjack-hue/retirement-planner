@@ -20,16 +20,26 @@ const calculateWithCity = (state: UserState, city: ReturnType<typeof getCityById
     throw new Error('City not found');
   }
   
+  // Safety: use default values if undefined/NaN
+  const food = state.food || 1.0;
+  const cuisineType = state.cuisineType || 1.0;
+  const travel = state.travel || 1.0;
+  const transport = state.transport || 1.0;
+  const hobbies = state.hobbies || 1.0;
+  const medical = state.medical || 1.0;
+  const housing = state.housing || 'rent';
+  const age = state.age || 30;
+  
   // Comprehensive lifestyle multiplier
-  const lifestyleMultiplier = state.food * state.cuisineType * state.travel * state.transport * state.hobbies * state.medical;
+  const lifestyleMultiplier = food * cuisineType * travel * transport * hobbies * medical;
   
   // Housing multiplier
-  const housingMultiplier = state.housing === 'own' ? 0.3 : state.housing === 'rent' ? 1.0 : 0.5;
+  const housingMultiplier = housing === 'own' ? 0.3 : housing === 'rent' ? 1.0 : 0.5;
   
   const baseMonthly = city.monthlyUSD;
   const adjustedMonthly = baseMonthly * lifestyleMultiplier * housingMultiplier;
   
-  const yearsToRetire = DEFAULT_RETIREMENT_AGE - state.age;
+  const yearsToRetire = Math.max(1, DEFAULT_RETIREMENT_AGE - age);
   const inflationRate = city.inflation / 100;
   const futureMonthly = adjustedMonthly * Math.pow(1 + inflationRate, yearsToRetire);
   
@@ -60,12 +70,21 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
     throw new Error('City not found');
   }
   
+  // Safety: use default values if undefined/NaN
+  const food = state.food || 1.0;
+  const cuisineType = state.cuisineType || 1.0;
+  const transport = state.transport || 1.0;
+  const hobbies = state.hobbies || 1.0;
+  const medical = state.medical || 1.0;
+  const housing = state.housing || 'rent';
+  const age = state.age || 30;
+  
   // Get expense values based on choices
-  const foodIndex = [1.0, 1.3, 1.6, 2.0].indexOf(state.food);
-  const cuisineIndex = [1.0, 1.2, 1.4, 1.5, 1.6].indexOf(state.cuisineType);
-  const transportIndex = [0.8, 1.0, 1.5, 2.0].indexOf(state.transport);
-  const lifestyleIndex = [0.8, 1.0, 1.3, 1.6].indexOf(state.hobbies);
-  const medicalIndex = [0.8, 1.0, 1.3, 1.6].indexOf(state.medical);
+  const foodIndex = [1.0, 1.3, 1.6, 2.0].indexOf(food);
+  const cuisineIndex = [1.0, 1.2, 1.4, 1.5, 1.6].indexOf(cuisineType);
+  const transportIndex = [0.8, 1.0, 1.5, 2.0].indexOf(transport);
+  const lifestyleIndex = [0.8, 1.0, 1.3, 1.6].indexOf(hobbies);
+  const medicalIndex = [0.8, 1.0, 1.3, 1.6].indexOf(medical);
   
   const foodValues = [city.expenses.food.home, city.expenses.food.delivery, city.expenses.food.dining, city.expenses.food.fine];
   const cuisineValues = [city.expenses.cuisine.chinese, city.expenses.cuisine.japanese, city.expenses.cuisine.western, city.expenses.cuisine.international];
@@ -81,9 +100,9 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   
   // Housing based on type
   let monthlyHousing = 0;
-  if (state.housing === 'rent') {
+  if (housing === 'rent') {
     monthlyHousing = city.expenses.housing.rent;
-  } else if (state.housing === 'own') {
+  } else if (housing === 'own') {
     monthlyHousing = city.expenses.housing.mortgage * 0.3;
   } else {
     monthlyHousing = city.expenses.housing.utility;
@@ -94,7 +113,7 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const currentMonthly = monthlyFood + monthlyCuisine + monthlyTransport + monthlyHousing + monthlyUtility + monthlyLifestyle + monthlyMedical;
   
   // Future calculation with inflation
-  const yearsToRetire = DEFAULT_RETIREMENT_AGE - state.age;
+  const yearsToRetire = Math.max(1, DEFAULT_RETIREMENT_AGE - age);
   const inflationRate = city.inflation / 100;
   
   const futureFood = monthlyFood * Math.pow(1 + inflationRate, yearsToRetire);
@@ -157,7 +176,7 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
     cityRate: city.rate,
     
     // Housing
-    housingType: housingLabels[state.housing],
+    housingType: housingLabels[housing],
     propertyAsset,
   };
 };
