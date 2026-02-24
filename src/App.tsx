@@ -4,6 +4,7 @@ import { cities, currentCities, retireCities, getCityById } from './data/cities'
 import type { UserState, CalculationResult, DetailedResult } from './types';
 import { lifestyleOptions } from './types';
 import { calculateRetirement, calculateDetailed, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
+import { exportToCSV, exportToText } from './utils/export';
 
 // Progress Bar Component
 function ProgressBar({ step }: { step: number }) {
@@ -553,6 +554,16 @@ function App() {
       {(step === 3 || step === 4) && result && (
         <div className="step-content">
           {result && detailed && <Result result={result} detailed={detailed} />}
+          
+          <div className="export-buttons">
+            <button className="btn btn-secondary" onClick={() => exportToCSV(detailed!, state)}>
+              📥 導出CSV
+            </button>
+            <button className="btn btn-secondary" onClick={() => exportToText(detailed!, state)}>
+              📄 導出報告
+            </button>
+          </div>
+          
           <button className="btn" onClick={handleRestart}>
             再整過
           </button>
