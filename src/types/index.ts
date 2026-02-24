@@ -27,6 +27,16 @@ export interface UserState {
   
   // Medical
   medical: number;       // 1-4 level of medical care needed
+  
+  // Education (for children)
+  hasChildren: boolean;
+  childrenCount: number;
+  educationLevel: number; // 1-3 (primary, secondary, university)
+  
+  // Insurance
+  hasInsurance: boolean;
+  insuranceType: number; // 1-3 (basic, standard, premium)
+  insurancePremium: number; // monthly premium
 }
 
 export interface CalculationResult {
@@ -48,6 +58,8 @@ export interface DetailedResult {
   monthlyUtility: number;
   monthlyLifestyle: number;
   monthlyMedical: number;
+  monthlyEducation: number;
+  monthlyInsurance: number;
   
   // Future expenses (at retirement)
   futureMonthly: number;
@@ -57,6 +69,8 @@ export interface DetailedResult {
   futureUtility: number;
   futureLifestyle: number;
   futureMedical: number;
+  futureEducation: number;
+  futureInsurance: number;
   
   // Summary
   totalNeeded: number;
@@ -135,5 +149,21 @@ export const lifestyleOptions = {
     { value: 1.0, icon: '🏠', label: '自置物业', labelEn: 'Own' },
     { value: 1.3, icon: '🔑', label: '租樓', labelEn: 'Rent' },
     { value: 0.5, icon: '👨‍👩‍👧', label: '同屋企住', labelEn: 'Family' },
+  ],
+  
+  // Education (for children)
+  education: [
+    { value: 0, icon: '🎓', label: '無小朋友', labelEn: 'No children' },
+    { value: 1.0, icon: '🏫', label: '基礎教育', labelEn: 'Primary/Secondary' },
+    { value: 1.5, icon: '🎒', label: '大學教育', labelEn: 'University' },
+    { value: 2.0, icon: '🌍', label: '國際學校', labelEn: 'International' },
+  ],
+  
+  // Insurance
+  insurance: [
+    { value: 0, icon: '❌', label: '無醫保', labelEn: 'No insurance' },
+    { value: 0.8, icon: '🏥', label: '基本醫保', labelEn: 'Basic' },
+    { value: 1.0, icon: '🛡️', label: '標準醫保', labelEn: 'Standard' },
+    { value: 1.3, icon: '⭐', label: '高端醫保', labelEn: 'Premium' },
   ],
 };

@@ -78,6 +78,11 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const medical = state.medical || 1.0;
   const housing = state.housing || 'rent';
   const age = state.age || 30;
+  const hasChildren = state.hasChildren || false;
+  const childrenCount = state.childrenCount || 0;
+  const educationLevel = state.educationLevel || 0;
+  const hasInsurance = state.hasInsurance || false;
+  const insuranceType = state.insuranceType || 0;
   
   // Get expense values based on choices
   const foodIndex = [1.0, 1.3, 1.6, 2.0].indexOf(food);
@@ -85,18 +90,24 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const transportIndex = [0.8, 1.0, 1.5, 2.0].indexOf(transport);
   const lifestyleIndex = [0.8, 1.0, 1.3, 1.6].indexOf(hobbies);
   const medicalIndex = [0.8, 1.0, 1.3, 1.6].indexOf(medical);
+  const educationIndex = [0, 1.0, 1.5, 2.0].indexOf(educationLevel);
+  const insuranceIndex = [0, 0.8, 1.0, 1.3].indexOf(insuranceType);
   
   const foodValues = [city.expenses.food.home, city.expenses.food.delivery, city.expenses.food.dining, city.expenses.food.fine];
   const cuisineValues = [city.expenses.cuisine.chinese, city.expenses.cuisine.japanese, city.expenses.cuisine.western, city.expenses.cuisine.international];
   const transportValues = [city.expenses.transport.public, city.expenses.transport.walk, city.expenses.transport.car, city.expenses.transport.taxi];
   const lifestyleValues = [500, 800, 1500, 3000]; // TV, Learn, Sports, Travel
   const medicalValues = [city.expenses.medical.basic, city.expenses.medical.regular, city.expenses.medical.private, city.expenses.medical.premium];
+  const educationValues = [0, 500, 1500, 3000]; // No children, Primary/Secondary, University, International
+  const insuranceValues = [0, 300, 500, 800]; // No insurance, Basic, Standard, Premium
   
   const monthlyFood = foodValues[foodIndex >= 0 ? foodIndex : 0];
   const monthlyCuisine = cuisineValues[cuisineIndex >= 0 ? cuisineIndex : 0];
   const monthlyTransport = transportValues[transportIndex >= 0 ? transportIndex : 0];
   const monthlyLifestyle = lifestyleValues[lifestyleIndex >= 0 ? lifestyleIndex : 0];
   const monthlyMedical = medicalValues[medicalIndex >= 0 ? medicalIndex : 0];
+  const monthlyEducation = hasChildren ? (educationValues[educationIndex >= 0 ? educationIndex : 0] * childrenCount) : 0;
+  const monthlyInsurance = hasInsurance ? insuranceValues[insuranceIndex >= 0 ? insuranceIndex : 0] : 0;
   
   // Housing based on type
   let monthlyHousing = 0;
@@ -110,7 +121,7 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   
   const monthlyUtility = city.expenses.housing.utility;
   
-  const currentMonthly = monthlyFood + monthlyCuisine + monthlyTransport + monthlyHousing + monthlyUtility + monthlyLifestyle + monthlyMedical;
+  const currentMonthly = monthlyFood + monthlyCuisine + monthlyTransport + monthlyHousing + monthlyUtility + monthlyLifestyle + monthlyMedical + monthlyEducation + monthlyInsurance;
   
   // Future calculation with inflation
   const yearsToRetire = Math.max(1, DEFAULT_RETIREMENT_AGE - age);
@@ -122,9 +133,11 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
   const futureUtility = monthlyUtility * Math.pow(1 + inflationRate, yearsToRetire);
   const futureLifestyle = monthlyLifestyle * Math.pow(1 + inflationRate, yearsToRetire);
   const futureMedical = monthlyMedical * Math.pow(1 + inflationRate * 1.5, yearsToRetire);
+  const futureEducation = monthlyEducation * Math.pow(1 + inflationRate, yearsToRetire);
+  const futureInsurance = monthlyInsurance * Math.pow(1 + inflationRate, yearsToRetire);
   
   const futureCuisine = monthlyCuisine * Math.pow(1 + inflationRate, yearsToRetire);
-  const futureMonthly = futureFood + futureCuisine + futureTransport + futureHousing + futureUtility + futureLifestyle + futureMedical;
+  const futureMonthly = futureFood + futureCuisine + futureTransport + futureHousing + futureUtility + futureLifestyle + futureMedical + futureEducation + futureInsurance;
   const futureYearly = futureMonthly * 12;
   
   // Investment calculation
@@ -152,6 +165,8 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
     monthlyUtility,
     monthlyLifestyle,
     monthlyMedical,
+    monthlyEducation,
+    monthlyInsurance,
     
     // Future expenses
     futureMonthly,
@@ -161,6 +176,8 @@ export const calculateDetailed = (state: UserState): DetailedResult => {
     futureUtility,
     futureLifestyle,
     futureMedical,
+    futureEducation,
+    futureInsurance,
     
     // Summary
     totalNeeded,

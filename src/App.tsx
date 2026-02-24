@@ -312,6 +312,12 @@ function App() {
     hasProperty: false,
     propertyValue: 0,
     medical: 1.0,
+    hasChildren: false,
+    childrenCount: 0,
+    educationLevel: 0,
+    hasInsurance: false,
+    insuranceType: 0,
+    insurancePremium: 0,
   });
 
   const handleNext = () => {
@@ -344,6 +350,12 @@ function App() {
       hasProperty: false,
       propertyValue: 0,
       medical: 1.0,
+      hasChildren: false,
+      childrenCount: 0,
+      educationLevel: 0,
+      hasInsurance: false,
+      insuranceType: 0,
+      insurancePremium: 0,
     });
   };
 
@@ -460,6 +472,76 @@ function App() {
               ))}
             </div>
           </div>
+          
+          <div className="card">
+            <div className="card-label">👶 有小朋友？(教育支出)</div>
+            <div className="grid-4">
+              {[
+                { value: false, label: '無', icon: '❌' },
+                { value: true, label: '有', icon: '👶' },
+              ].map((option, i) => (
+                <button
+                  key={i}
+                  className={`option ${state.hasChildren === option.value ? 'selected' : ''}`}
+                  onClick={() => setState({ ...state, hasChildren: option.value })}
+                >
+                  <span className="option-icon">{option.icon}</span>
+                  <span className="option-label">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {state.hasChildren && (
+            <div className="card">
+              <div className="card-label">🎓 子女教育程度</div>
+              <div className="grid-4">
+                {lifestyleOptions.education.map((option, i) => (
+                  <LifestyleOption
+                    key={i}
+                    option={option}
+                    selected={state.educationLevel === option.value}
+                    onClick={() => setState({ ...state, educationLevel: option.value })}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="card">
+            <div className="card-label">🛡️ 有醫療保險？</div>
+            <div className="grid-4">
+              {[
+                { value: false, label: '無', icon: '❌' },
+                { value: true, label: '有', icon: '🛡️' },
+              ].map((option, i) => (
+                <button
+                  key={i}
+                  className={`option ${state.hasInsurance === option.value ? 'selected' : ''}`}
+                  onClick={() => setState({ ...state, hasInsurance: option.value })}
+                >
+                  <span className="option-icon">{option.icon}</span>
+                  <span className="option-label">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {state.hasInsurance && (
+            <div className="card">
+              <div className="card-label">🏥 保險保障程度</div>
+              <div className="grid-4">
+                {lifestyleOptions.insurance.map((option, i) => (
+                  <LifestyleOption
+                    key={i}
+                    option={option}
+                    selected={state.insuranceType === option.value}
+                    onClick={() => setState({ ...state, insuranceType: option.value })}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           
           <button className="btn" onClick={handleNext}>
             計數
