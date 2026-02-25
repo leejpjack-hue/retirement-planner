@@ -574,10 +574,15 @@ function App() {
               <div className="calc-item">
                 <label>開始年份</label>
                 <select id="tm-startYear" className="calc-input" defaultValue={1995}>
+                  <option value={1980}>1980</option>
+                  <option value={1985}>1985</option>
+                  <option value={1990}>1990</option>
                   <option value={1995}>1995</option>
                   <option value={2000}>2000</option>
                   <option value={2005}>2005</option>
                   <option value={2010}>2010</option>
+                  <option value={2015}>2015</option>
+                  <option value={2020}>2020</option>
                   <option value={2015}>2015</option>
                 </select>
               </div>
@@ -611,18 +616,29 @@ function App() {
                   
                   const s = result.summary;
                   const scenarios = result.scenarios;
+                  const extra = result.extraAnalysis;
                   
                   let msg = `⏰ 時光機分析 (${s.startYear}年開始)\n\n`;
                   msg += `📊 總結:\n`;
                   msg += `• 總投入: HK$${s.totalContributed.toLocaleString()}\n`;
                   msg += `• 現在價值: HK$${s.finalValue.toLocaleString()}\n`;
                   msg += `• 名義收益: HK$${s.nominalGain.toLocaleString()}\n`;
-                  msg += `• 通脹後實際價值: HK$${s.realValueAfterInflation.toLocaleString()}\n\n`;
+                  msg += `• 通脹後實際價值: HK$${s.realValueAfterInflation.toLocaleString()}\n`;
+                  msg += `• 通脹倍數: ${extra?.totalInflationMultiplier.toFixed(1)}x\n`;
+                  msg += `• 平均年回報: ${extra?.averageAnnualReturn.toFixed(1)}%\n\n`;
                   
                   msg += `🏠 退休生活質素:\n`;
                   scenarios.forEach(sc => {
-                    msg += `• ${sc.scenario}: HK$${Math.round(sc.monthlyAtRetirement).toLocaleString()}/月\n`;
+                    const qualityEmoji = {'good': '✅', 'moderate': '⚠️', 'basic': '❌', 'poor': '⛔'}[sc.qualityOfLife];
+                    msg += `${qualityEmoji} ${sc.scenario}: HK$${Math.round(sc.monthlyAtRetirement).toLocaleString()}/月\n`;
+                    if (sc.details) {
+                      msg += `   住:${sc.details.housing} 食:${sc.details.food}\n`;
+                    }
                   });
+                  
+                  msg += `\n📈 對比:\n`;
+                  msg += `• 如果當時買樓: HK$${Math.round(extra?.propertyValueIfInvested || 0).toLocaleString()}\n`;
+                  msg += `• 如果當時買HSI: HK$$extra?.hsiValueIfInvested || 0).toLocaleString()}\n`;
                   
                   alert(msg);
                 }}
