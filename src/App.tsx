@@ -5,6 +5,8 @@ import type { UserState, CalculationResult, DetailedResult } from './types';
 import { lifestyleOptions } from './types';
 import { calculateRetirement, calculateDetailed, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
 import { exportToCSV, exportToText } from './utils/export';
+import { calculateMPF, calculateInflation } from './utils/mpf';
+import { calculateTimeMachine, historicalData } from './utils/timeMachine';
 
 // Progress Bar Component
 function ProgressBar({ step }: { step: number }) {
@@ -562,6 +564,72 @@ function App() {
             <button className="btn btn-secondary" onClick={() => exportToText(detailed!, state)}>
               📄 導出報告
             </button>
+          </div>
+          
+          {/* Time Machine Calculator */}
+          <div className="result-section">
+            <h3>⏰ 時光機 - 歷史數據分析</h3>
+            <p className="result-desc">如果你1995年開始每月儲蓄，到今日會點？</p>
+            <div className="calculator-grid">
+              <div className="calc-item">
+                <label>開始年份</label>
+                <select id="tm-startYear" className="calc-input" defaultValue={1995}>
+                  <option value={1995}>1995</option>
+                  <option value={2000}>2000</option>
+                  <option value={2005}>2005</option>
+                  <option value={2010}>2010</option>
+                  <option value={2015}>2015</option>
+                </select>
+              </div>
+              <div className="calc-item">
+                <label>當時年齡</label>
+                <input type="number" id="tm-startAge" className="calc-input" defaultValue={30} />
+              </div>
+              <div className="calc-item">
+                <label>每月儲蓄 (HK$)</label>
+                <input type="number" id="tm-monthly" className="calc-input" defaultValue={3000} />
+              </div>
+              <div className="calc-item">
+                <label>儲蓄年數</label>
+                <input type="number" id="tm-years" className="calc-input" defaultValue={10} />
+              </div>
+              <button 
+                className="btn calc-btn"
+                onClick={() => {
+                  const startYear = parseInt((document.getElementById('tm-startYear') as HTMLSelectElement).value);
+                  const startAge = parseInt((document.getElementById('tm-startAge') as HTMLInputElement).value) || 30;
+                  const monthly = parseInt((document.getElementById('tm-monthly') as HTMLInputElement).value) || 3000;
+                  const years = parseInt((document.getElementById('tm-years') as HTMLInputElement).value) || 10;
+                  
+                  const result = calculateTimeMachine({
+                    startYear,
+                    startAge,
+                    monthlySavings: monthly,
+                    savingsYears: years,
+                    retirementAge: 65,
+                  });
+                  
+                  const s = result.summary;
+                  const scenarios = result.scenarios;
+                  
+                  let msg = `⏰ 時光機分析 (${s.startYear}年開始)\n\n`;
+                  msg += `📊 總結:\n`;
+                  msg += `• 總投入: HK$${s.totalContributed.toLocaleString()}\n`;
+                  msg += `• 現在價值: HK$${s.finalValue.toLocaleString()}\n`;
+                  msg += `• 名義收益: HK$${s.nominalGain.toLocaleString()}\n`;
+                  msg += `• 通脹後實際價值: HK$${s.realValueAfterInflation.toLocaleString()}\n\n`;
+                  
+                  msg += `🏠 退休生活質素:\n`;
+                  scenarios.forEach(sc => {
+                    msg += `• ${sc.scenario}: HK$${Math.round(sc.monthlyAtRetirement).toLocaleString()}/月\n`;
+                  });
+                  
+                  alert(msg);
+                }}
+              >
+                🚀 開始時光機
+              </button>
+            </div>
           </div>
           
           <button className="btn" onClick={handleRestart}>
