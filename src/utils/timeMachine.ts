@@ -267,7 +267,7 @@ export const calculateTimeMachine = (input: TimeMachineInput): TimeMachineResult
     // 如果當時將相同錢買樓
     propertyValueIfInvested: totalContributed * (property2025 / propertyStart),
     // 如果當時買恒生指數
-    hsiValueIfInvested: totalContributed * (hsi2025 / hsiStart) / 100,
+    hsiValueIfInvested: totalContributed * (hsi2025 / hsiStart),
     // 總通脹倍數
     totalInflationMultiplier: cumulativeInflation,
     // 每年平均回報

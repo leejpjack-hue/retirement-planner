@@ -638,7 +638,7 @@ function App() {
                   
                   msg += `\n📈 對比:\n`;
                   msg += `• 如果當時買樓: HK$${Math.round(extra?.propertyValueIfInvested || 0).toLocaleString()}\n`;
-                  msg += `• 如果當時買HSI: HK$$extra?.hsiValueIfInvested || 0).toLocaleString()}\n`;
+                  msg += `• 如果當時買HSI: HK$${Math.round(extra?.hsiValueIfInvested || 0).toLocaleString()}\n`;
                   
                   alert(msg);
                 }}
