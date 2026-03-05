@@ -435,6 +435,20 @@ function App() {
           </div>
           
           <div className="card">
+            <div className="card-label">🥢 通常食咩菜？</div>
+            <div className="grid-4">
+              {lifestyleOptions.cuisine.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.cuisineType === option.value}
+                  onClick={() => setState({ ...state, cuisineType: option.value })}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
             <div className="card-label">✈️ 幾耐旅行？</div>
             <div className="grid-4">
               {lifestyleOptions.travel.map((option, i) => (
@@ -477,6 +491,26 @@ function App() {
           </div>
           
           <div className="card">
+            <div className="card-label">🏠 退休住邊？</div>
+            <div className="grid-4">
+              {[
+                { value: 'own', icon: '🏠', label: '自置物业', labelEn: 'Own' },
+                { value: 'rent', icon: '🔑', label: '租樓', labelEn: 'Rent' },
+                { value: 'family', icon: '👨👩👧', label: '同屋企住', labelEn: 'Family' },
+              ].map((option, i) => (
+                <button
+                  key={i}
+                  className={`option ${state.housing === option.value ? 'selected' : ''}`}
+                  onClick={() => setState({ ...state, housing: option.value as 'own' | 'rent' | 'family' })}
+                >
+                  <span className="option-icon">{option.icon}</span>
+                  <span className="option-label">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="card">
             <div className="card-label">👶 有小朋友？(教育支出)</div>
             <div className="grid-4">
               {[
@@ -510,6 +544,20 @@ function App() {
               </div>
             </div>
           )}
+          
+          <div className="card">
+            <div className="card-label">🏥 需要咩醫療保障？</div>
+            <div className="grid-4">
+              {lifestyleOptions.medical.map((option, i) => (
+                <LifestyleOption
+                  key={i}
+                  option={option}
+                  selected={state.medical === option.value}
+                  onClick={() => setState({ ...state, medical: option.value })}
+                />
+              ))}
+            </div>
+          </div>
           
           <div className="card">
             <div className="card-label">🛡️ 有醫療保險？</div>
