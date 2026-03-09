@@ -3,7 +3,7 @@ import './App.css';
 import { cities, currentCities, retireCities, getCityById } from './data/cities';
 import type { UserState, CalculationResult, DetailedResult } from './types';
 import { lifestyleOptions } from './types';
-import { calculateRetirement, calculateDetailed, getSuggestion, formatUSD, formatCurrency } from './utils/calculations';
+import { calculateRetirement, calculateDetailed, getSuggestion, formatUSD, formatCurrency, calculateFIRE } from './utils/calculations';
 import { exportToCSV, exportToText } from './utils/export';
 import { calculateMPF, calculateInflation } from './utils/mpf';
 import { calculateTimeMachine, historicalData } from './utils/timeMachine';
@@ -134,8 +134,9 @@ function AgeSlider({
 }
 
 // Result Component - Detailed Excel-like breakdown
-function Result({ result, detailed }: { result: CalculationResult; detailed: DetailedResult }) {
+function Result({ result, detailed, state }: { result: CalculationResult; detailed: DetailedResult; state: UserState }) {
   const suggestion = getSuggestion(result.savingsNeed);
+  const fire = calculateFIRE(state);
   
   return (
     <div className="result-section">
@@ -145,6 +146,63 @@ function Result({ result, detailed }: { result: CalculationResult; detailed: Det
         <div className="result-sub">退休需要 (USD)</div>
         <div className="result-local">
           約 {formatCurrency(result.localAmount, result.currency)}
+        </div>
+      </div>
+      
+      {/* FIRE Calculation */}
+      <div className="result-box" style={{ marginTop: '20px', background: fire.progress >= 0.5 ? '#e8f5e9' : '#fff3e0' }}>
+        <div className="result-sub">🎯 FIRE 退休計算器</div>
+        <div style={{ marginTop: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap' }}>
+            <div style={{ textAlign: 'center', padding: '10px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#2196f3' }}>
+                {fire.progress >= 1 ? '🎉' : fire.progress >= 0.5 ? '👍' : '💪'}
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                {Math.round(fire.progress * 100)}%
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>儲蓄進度</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '10px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#4caf50' }}>
+                {fire.yearsToRetire === Infinity ? '∞' : fire.yearsToRetire}
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                {fire.yearsToRetire === Infinity ? 'N/A' : `${fire.yearsToRetire}年`}
+              </div>
+              <div style={{ fontSize: '12px', color: '#666' }}>達到FIRE</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '10px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ff9800' }}>
+                {fire.retireAge || 'N/A'}
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold' }}>歲</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>預計退休年齡</div>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(0,0,0,0.05)', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+              <span>🔥 FIRE目標:</span>
+              <span style={{ fontWeight: 'bold' }}>${fire.fireNumber.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '5px' }}>
+              <span>💵 現在儲蓄:</span>
+              <span>${fire.currentSavings.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '5px' }}>
+              <span>📈 每月儲蓄:</span>
+              <span>${fire.monthlySavings.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '5px', color: fire.monthlySavingsNeeded > fire.monthlySavings ? '#f44336' : '#4caf50' }}>
+              <span>📊 每月需要:</span>
+              <span style={{ fontWeight: 'bold' }}>${fire.monthlySavingsNeeded.toLocaleString()}</span>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '10px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
+            {fire.milestone}
+          </div>
         </div>
       </div>
       
@@ -321,6 +379,9 @@ function App() {
     hasInsurance: false,
     insuranceType: 0,
     insurancePremium: 0,
+    currentSavings: 0,
+    mpf: 0,
+    monthlySavings: 0,
   });
 
   const handleNext = () => {
@@ -359,6 +420,9 @@ function App() {
       hasInsurance: false,
       insuranceType: 0,
       insurancePremium: 0,
+      currentSavings: 0,
+      mpf: 0,
+      monthlySavings: 0,
     });
   };
 
@@ -409,6 +473,40 @@ function App() {
               value={state.age}
               onChange={(age) => setState({ ...state, age })}
             />
+          </div>
+          
+          <div className="card">
+            <div className="card-label">💰 儲蓄情況</div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ fontSize: '14px', color: '#666' }}>🏦 現在儲蓄 (除MPF): $</label>
+              <input
+                type="number"
+                value={state.currentSavings || ''}
+                onChange={(e) => setState({ ...state, currentSavings: parseInt(e.target.value) || 0 })}
+                style={{ marginLeft: '10px', padding: '5px', borderRadius: '5px', border: '1px solid #ddd' }}
+                placeholder="0"
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ fontSize: '14px', color: '#666' }}>🏧 MPF強積金: $</label>
+              <input
+                type="number"
+                value={state.mpf || ''}
+                onChange={(e) => setState({ ...state, mpf: parseInt(e.target.value) || 0 })}
+                style={{ marginLeft: '10px', padding: '5px', borderRadius: '5px', border: '1px solid #ddd' }}
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '14px', color: '#666' }}>📈 每月儲蓄: $</label>
+              <input
+                type="number"
+                value={state.monthlySavings || ''}
+                onChange={(e) => setState({ ...state, monthlySavings: parseInt(e.target.value) || 0 })}
+                style={{ marginLeft: '10px', padding: '5px', borderRadius: '5px', border: '1px solid #ddd' }}
+                placeholder="0"
+              />
+            </div>
           </div>
           
           <button className="btn" onClick={handleNext}>
@@ -603,7 +701,7 @@ function App() {
       {/* Step 3: Results */}
       {(step === 3 || step === 4) && result && (
         <div className="step-content">
-          {result && detailed && <Result result={result} detailed={detailed} />}
+          {result && detailed && <Result result={result} detailed={detailed} state={state} />}
           
           <div className="export-buttons">
             <button className="btn btn-secondary" onClick={() => exportToCSV(detailed!, state)}>

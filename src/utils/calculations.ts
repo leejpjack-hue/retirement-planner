@@ -1,11 +1,99 @@
 // Calculation utilities for Retirement Planner - Detailed Version
 
-import type { UserState, CalculationResult, DetailedResult } from '../types';
+import type { UserState, CalculationResult, DetailedResult, FIRECalculation } from '../types';
 import { getCityById } from '../data/cities';
 
 const DEFAULT_RETIREMENT_AGE = 65;
 const DEFAULT_WITHDRAWAL_RATE = 0.04;
 const DEFAULT_INVESTMENT_RETURN = 0.06;
+const DEFAULT_SAFETY_RATE = 0.03; // Safe withdrawal rate
+
+/**
+ * Calculate FIRE (Financial Independence, Retire Early)
+ * @returns years to retirement, target amount, monthly savings needed
+ */
+export const calculateFIRE = (state: UserState): FIRECalculation => {
+  // Get current city expenses
+  const city = getCityById(state.retireCity);
+  const baseCity = city || getCityById('hong_kong')!;
+  
+  // Calculate monthly expenses
+  const food = state.food || 1.0;
+  const cuisineType = state.cuisineType || 1.0;
+  const travel = state.travel || 1.0;
+  const transport = state.transport || 1.0;
+  const hobbies = state.hobbies || 1.0;
+  const medical = state.medical || 1.0;
+  const housing = state.housing || 'rent';
+  
+  const lifestyleMultiplier = food * cuisineType * travel * transport * hobbies * medical;
+  const housingMultiplier = housing === 'own' ? 0.3 : housing === 'rent' ? 1.0 : 0.5;
+  const monthlyExpenses = baseCity.monthlyUSD * lifestyleMultiplier * housingMultiplier;
+  
+  // Annual expenses with inflation
+  const inflationRate = baseCity.inflation / 100;
+  const annualExpenses = monthlyExpenses * 12;
+  
+  // FIRE number (25x annual expenses = 4% rule)
+  const fireNumber = annualExpenses / DEFAULT_WITHDRAWAL_RATE;
+  
+  // Current savings (from MPF + other savings)
+  const currentSavings = (state.currentSavings || 0) + (state.mpf || 0);
+  
+  // Monthly savings
+  const monthlySavings = state.monthlySavings || 0;
+  
+  // Investment return rate (annual)
+  const annualReturn = 0.07; // 7% average return
+  
+  if (monthlySavings <= 0) {
+    return {
+      yearsToRetire: Infinity,
+      fireNumber: Math.round(fireNumber),
+      currentSavings: Math.round(currentSavings),
+      monthlySavings: Math.round(monthlySavings),
+      monthlySavingsNeeded: Math.round(annualExpenses / 12),
+      progress: currentSavings / fireNumber,
+      annualExpenses: Math.round(annualExpenses),
+      milestone: '請設定每月儲蓄金額'
+    };
+  }
+  
+  // Calculate years to FIRE
+  let months = 0;
+  let savings = currentSavings;
+  
+  while (savings < fireNumber && months < 600) { // Max 50 years
+    savings = (savings + monthlySavings) * (1 + annualReturn / 12);
+    months++;
+  }
+  
+  const yearsToRetire = months / 12;
+  const currentAge = state.age || 30;
+  const retireAge = currentAge + yearsToRetire;
+  
+  // Calculate monthly savings needed to retire in target years
+  const targetYears = Math.max(1, DEFAULT_RETIREMENT_AGE - currentAge);
+  const monthsToTarget = targetYears * 12;
+  
+  // PMT formula: monthly savings needed
+  const r = annualReturn / 12;
+  const monthlySavingsNeeded = (fireNumber - currentSavings * Math.pow(1 + r, monthsToTarget)) / 
+    ((Math.pow(1 + r, monthsToTarget) - 1) / r);
+  
+  return {
+    yearsToRetire: Math.round(yearsToRetire * 10) / 10,
+    fireNumber: Math.round(fireNumber),
+    currentSavings: Math.round(currentSavings),
+    monthlySavings: Math.round(monthlySavings),
+    monthlySavingsNeeded: Math.max(0, Math.round(monthlySavingsNeeded)),
+    progress: Math.min(1, currentSavings / fireNumber),
+    retireAge: Math.round(retireAge),
+    annualExpenses: Math.round(annualExpenses),
+    milestone: retireAge <= 65 ? '可以達到傳統退休年齡' : 
+               retireAge <= 70 ? '考慮延遲退休' : '需要增加儲蓄'
+  };
+};
 
 export const calculateRetirement = (state: UserState): CalculationResult => {
   const city = getCityById(state.retireCity);

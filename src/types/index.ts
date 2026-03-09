@@ -37,6 +37,11 @@ export interface UserState {
   hasInsurance: boolean;
   insuranceType: number; // 1-3 (basic, standard, premium)
   insurancePremium: number; // monthly premium
+  
+  // Savings & MPF
+  currentSavings: number;  // Current total savings (except MPF)
+  mpf: number;            // MPF balance
+  monthlySavings: number; // Monthly savings amount
 }
 
 export interface CalculationResult {
@@ -47,6 +52,18 @@ export interface CalculationResult {
   yearsToRetire: number;
   localAmount: number;
   currency: string;
+}
+
+export interface FIRECalculation {
+  yearsToRetire: number;
+  fireNumber: number;
+  currentSavings: number;
+  monthlySavings: number;
+  monthlySavingsNeeded: number;
+  progress: number;
+  retireAge?: number;
+  annualExpenses: number;
+  milestone: string;
 }
 
 export interface DetailedResult {
